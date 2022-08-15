@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Time {
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  nome             String    @unique
+  abreviacao       String    @unique
+  urlImagem        String
+  partidasTimeCasa Partida[] @relation("PartidasTimeCasa")
+  partidasTimeFora Partida[] @relation("PartidasTimeFora")
+  usuarios         Usuario[]
+}
+
+model Bolao {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  nomeBolao   String    @unique
+  codigoBolao String    @unique
+  usuarios    Usuario[] @relation(fields: [idsUsuarios], references: [id])
+  idsUsuarios String[]  @db.ObjectId
+}
+
+model Usuario {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  nomeUsuario   String    @unique
+  senha         String
+  nomeCompleto  String
+  email         String    @unique
+  timeCampeao   Time?     @relation(fields: [idTimeCampeao], references: [id])
+  idTimeCampeao String?   @db.ObjectId
+  boloes        Bolao[]   @relation(fields: [idsBoloes], references: [id])
+  idsBoloes     String[]  @db.ObjectId
+  palpites      Palpite[]
+}
+
+model Partida {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  timeCasa       Time      @relation("PartidasTimeCasa", fields: [idTimeCasa], references: [id])
+  idTimeCasa     String    @db.ObjectId
+  timeFora       Time      @relation("PartidasTimeFora", fields: [idTimeFora], references: [id])
+  idTimeFora     String    @db.ObjectId
+  placarTimeCasa Int
+  placarTimeFora Int
+  dataPartida    DateTime
+  localPartida   String
+  finalizada     Boolean
+  palpite        Palpite[]
+}
+
+model Palpite {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  usuario        Usuario  @relation(fields: [idUsuario], references: [id])
+  idUsuario      String   @db.ObjectId
+  partida        Partida  @relation(fields: [idPartida], references: [id])
+  idPartida      String   @db.ObjectId
+  placarTimeCasa Int
+  placarTimeFora Int
+  dataPalpite    DateTime
+  pontuacao      Int
+}
