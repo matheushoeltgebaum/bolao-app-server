@@ -30,10 +30,9 @@ model Bolao {
 
 model Usuario {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  nomeUsuario   String    @unique
-  senha         String
-  nomeCompleto  String
+  nomeUsuario   String
   email         String    @unique
+  firebaseId    String    @unique
   timeCampeao   Time?     @relation(fields: [idTimeCampeao], references: [id])
   idTimeCampeao String?   @db.ObjectId
   boloes        Bolao[]   @relation(fields: [idsBoloes], references: [id])
